@@ -1,0 +1,280 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap');
+:root {
+  --bg:       #000000;
+  --surface:  #000000;
+  --surface2: #1c1c2e;
+  --accent:   #FFD600;
+  --accent2:  #35173D;
+  --accent3:  #47d4ff;
+  --text:     #FFFFFF;
+  --border:   rgba(255, 255, 255, 0.07);
+  --glow:     rgba(232, 255, 71, 0.15);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Arial';
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  animation: pageFadeIn 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(232, 255, 71,  0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(255,  79, 216, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 60% 10%, rgba(71,  212, 255, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.page-wrapper {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 90px 24px 50px;
+}
+
+.step-nav {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 200;
+  align-items: center;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+.step-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(232, 255, 71, 0.7);
+  width: 26px;
+  border-radius: 4px;
+}
+
+.step-dot.done {
+  background: var(--accent);
+  opacity: 0.38;
+  cursor: pointer;
+}
+
+.step-dot.done:hover {
+  opacity: 0.7;
+}
+
+.label-step {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+  animation: revealUp 0.45s ease 0.1s both;
+}
+
+.title-display {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(46px, 9vw, 96px);
+  letter-spacing: 0.02em;
+  line-height: 0.92;
+  text-align: center;
+  margin-bottom: 10px;
+  animation: revealUp 0.5s ease 0.2s both;
+}
+
+.page-subtitle {
+  font-family: 'Metal Mania', system-ui;
+  font-size: 26px;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+  text-shadow: 1px 1px 0px #4E0085;
+  text-align: center;
+  margin-bottom: 36px;
+  font-weight: 400;
+  animation: revealUp 0.5s ease 0.3s both;
+}
+
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.btn-primary {
+  font-family: 'Arial';
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #0a0a0f;
+  border: none;
+  padding: 14px 36px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 20px rgba(232, 255, 71, 0.35);
+}
+.btn-primary:hover::after { opacity: 0.12; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  font-family: 'Arial';
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 13px 26px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+a.btn-ghost {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  align-items: center;
+  animation: revealUp 0.5s ease 0.5s both;
+  flex-wrap: wrap;
+}
+
+.selection-summary {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--muted);
+  z-index: 150;
+  max-width: 210px;
+  line-height: 1.7;
+  animation: revealUp 0.5s ease 0.8s both;
+  transition: opacity 0.3s;
+}
+
+.selection-summary strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.selection-summary .sum-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.selection-summary .sum-icon {
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+::-webkit-scrollbar        { width: 4px; height: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--muted); border-radius: 2px; }
+
+@media (max-width: 600px) {
+  .page-wrapper { padding: 80px 16px 40px; }
+  .selection-summary { display: none; }
+}
+
+.layout {
+  display: flex;
+  justify-content: center;
+}
+
+.main {
+  margin-left: 0;
+  max-width: 960px;
+  width: 100%;
+}

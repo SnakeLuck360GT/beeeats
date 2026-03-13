@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEEEATS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/global.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/vibes.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main" style="padding: 0;">
+      <nav class="step-nav" id="stepNav" aria-label="Steps"></nav>
+
+      <main class="page-wrapper">
+        <span class="label-step">Step 3 of 5</span>
+        <h1 class="title-display">SET YOUR VIBES</h1>
+        <p class="page-subtitle">Have more fun with your playlist</p>
+
+        <div class="sliders-panel" id="slidersPanel">
+          <div class="vibe-row" data-key="energy">
+            <span class="pole pole-left">Mellow</span>
+            <div class="slider-track-wrap">
+              <div class="track-bg"></div>
+              <div class="track-fill" id="fill-energy"></div>
+              <input type="range" min="0" max="100" value="50" id="slider-energy" aria-label="Energy: Mellow to Intense" />
+              <div class="thumb-tooltip" id="tip-energy"></div>
+            </div>
+            <span class="pole pole-right">Intense</span>
+          </div>
+
+          <div class="vibe-row" data-key="instrument">
+            <span class="pole pole-left">Acoustic</span>
+            <div class="slider-track-wrap">
+              <div class="track-bg"></div>
+              <div class="track-fill" id="fill-instrument"></div>
+              <input type="range" min="0" max="100" value="30" id="slider-instrument" aria-label="Instrumentation: Acoustic to Electronic" />
+              <div class="thumb-tooltip" id="tip-instrument"></div>
+            </div>
+            <span class="pole pole-right">Electronic</span>
+          </div>
+
+          <div class="vibe-row" data-key="mood">
+            <span class="pole pole-left">Dark</span>
+            <div class="slider-track-wrap">
+              <div class="track-bg"></div>
+              <div class="track-fill" id="fill-mood"></div>
+              <input type="range" min="0" max="100" value="40" id="slider-mood" aria-label="Mood: Dark to Bright" />
+              <div class="thumb-tooltip" id="tip-mood"></div>
+            </div>
+            <span class="pole pole-right">Bright</span>
+          </div>
+
+          <div class="vibe-row" data-key="formation">
+            <span class="pole pole-left">Solo</span>
+            <div class="slider-track-wrap">
+              <div class="track-bg"></div>
+              <div class="track-fill" id="fill-formation"></div>
+              <input type="range" min="0" max="100" value="60" id="slider-formation" aria-label="Formation: Solo to Band" />
+              <div class="thumb-tooltip" id="tip-formation"></div>
+            </div>
+            <span class="pole pole-right">Band</span>
+          </div>
+
+          <div class="vibe-row" data-key="era">
+            <span class="pole pole-left">Old School</span>
+            <div class="slider-track-wrap">
+              <div class="track-bg"></div>
+              <div class="track-fill" id="fill-era"></div>
+              <input type="range" min="0" max="100" value="45" id="slider-era" aria-label="Era: Old School to New Releases" />
+              <div class="thumb-tooltip" id="tip-era"></div>
+            </div>
+            <span class="pole pole-right">New Releases</span>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn-ghost" id="btnBack">← Back</button>
+          <button class="btn-primary btn-icon" id="btnGenerate">
+            Generate Playlist <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../../backend/state.js"></script>
+  <script src="../../../backend/vibes.js"></script>
+</body>
+</html>

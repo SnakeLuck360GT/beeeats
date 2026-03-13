@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEEEATS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/global.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/generating.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main" style="padding: 0;">
+      <nav class="step-nav" id="stepNav" aria-label="Steps"></nav>
+
+      <main class="page-wrapper">
+        <div class="loader-orbit" aria-hidden="true">
+          <div class="orbit-ring orbit-ring--1"></div>
+          <div class="orbit-ring orbit-ring--2"></div>
+          <div class="orbit-ring orbit-ring--3"></div>
+          <div class="orbit-core">
+            <span class="orbit-icon">🎵</span>
+          </div>
+          <div class="satellite satellite--1"></div>
+          <div class="satellite satellite--2"></div>
+          <div class="satellite satellite--3"></div>
+        </div>
+
+        <span class="label-step">Step 4 of 5</span>
+        <h1 class="title-display">BUILDING YOUR MIX</h1>
+
+        <div class="status-wrap" role="status" aria-live="assertive">
+          <p class="status-msg" id="statusMsg">Scanning your library</p>
+          <div class="status-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div class="gen-steps" id="genSteps" aria-hidden="true">
+          <div class="gen-step" id="gs0">
+            <div class="gs-icon"></div>
+            <span>Library scan</span>
+          </div>
+          <div class="gen-step" id="gs1">
+            <div class="gs-icon"></div>
+            <span>Genre matching</span>
+          </div>
+          <div class="gen-step" id="gs2">
+            <div class="gs-icon"></div>
+            <span>Vibe analysis</span>
+          </div>
+          <div class="gen-step" id="gs3">
+            <div class="gs-icon"></div>
+            <span>Track selection</span>
+          </div>
+          <div class="gen-step" id="gs4">
+            <div class="gs-icon"></div>
+            <span>Finalizing</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../../backend/state.js"></script>
+  <script src="../../../backend/generating.js"></script>
+</body>
+</html>

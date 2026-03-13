@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEEEATS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/global.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/preview.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main" style="padding: 0;">
+      <nav class="step-nav" id="stepNav" aria-label="Steps"></nav>
+
+      <main class="page-wrapper">
+        <span class="label-step">Step 5 of 5</span>
+        <h1 class="title-display">YOUR PLAYLIST</h1>
+
+        <div class="preview-panel">
+          <div class="preview-container">
+          <div class="preview-header">
+            <div class="preview-art" id="previewArt" aria-hidden="true">🎵</div>
+            <div class="preview-meta">
+              <input type="text" class="playlist-title playlist-title-input" id="playlistTitle" value="BEEEATS Mix — Remix" aria-label="Playlist name" />
+              <div class="genre-tags" id="genreTags"></div>
+              <div class="meta-row">
+                <span class="meta-item" id="metaTracks">— tracks</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item" id="metaDuration">— min</span>
+                <span class="meta-sep">·</span>
+                <span class="meta-item meta-live" id="metaBpm">— avg BPM</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="track-list" id="trackList" role="list" aria-label="Generated tracks"></div>
+          </div>
+
+          <div class="preview-actions">
+            <button class="btn-primary btn-icon" id="btnSave">
+              <span>SAVE PLAYLIST</span>
+            </button>
+            <button class="btn-ghost" id="btnShuffle">↻ Shuffle</button>
+            <button class="btn-ghost" id="btnStartOver">Start Over</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../../backend/state.js"></script>
+  <script src="../../../backend/preview.js"></script>
+</body>
+</html>

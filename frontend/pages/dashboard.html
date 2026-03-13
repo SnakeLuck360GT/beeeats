@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <title>BEEEATS</title>
+</head>
+<body>
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1 class="text-logo">BEEEATS</h1>
+      <nav class="nav">
+        <a class="nav-item" href="../pages/dashboard.html">Home</a>
+        <a class="nav-item" href="../pages/playlist-mixing/select-playlist.html">Playlist Mixing</a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <div class="top-title">
+        <h1 class="playlist-title">PLAYLISTS</h1>
+        <p class="playlist-text">Your generated remix playlists</p>
+      </div>
+      <div class="playlist-container" id="playlistContainer">
+        <p class="loading-msg" style="color:#bbb;font-size:14px;">Loading playlists…</p>
+      </div>
+
+      <div class="top-title">
+        <h1 class="playlist-title">ARTISTS</h1>
+        <p class="playlist-text">Most featured artists in your mixes</p>
+      </div>
+      <div class="playlist-container artist-container" id="artistContainer">
+        <p class="loading-msg" style="color:#bbb;font-size:14px;">Loading artists…</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom nav (mobile only, shown via CSS) -->
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a class="bottom-nav-item active" href="../pages/dashboard.html">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Home
+    </a>
+
+    <a class="bottom-nav-item add-btn" href="../pages/playlist-mixing/select-playlist.html">
+      <div class="add-circle">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </div>
+    </a>
+
+    <a class="bottom-nav-item" id="profileNavBtn" href="https://open.spotify.com" target="_blank" rel="noopener">
+      <div class="nav-avatar-placeholder" id="navAvatar">👤</div>
+      Profile
+    </a>
+  </nav>
+
+  <script>
+    const MARKER = 'Generated remix playlist';
+
+    async function initDashboard() {
+      let accessToken     = localStorage.getItem('spotify_access_token');
+      let refreshToken    = localStorage.getItem('spotify_refresh_token');
+      let expiryTimestamp = localStorage.getItem('spotify_expiry_timestamp');
+
+      if (!accessToken || !refreshToken) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (Date.now() > Number(expiryTimestamp)) {
+        try {
+          const response = await fetch('https://spotifycallback.netlify.app/.netlify/functions/api/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: refreshToken }),
+          });
+          const text = await response.text();
+          if (!response.ok) { window.location.href = 'login.html'; return; }
+          const { access_token, expires_in } = JSON.parse(text);
+          accessToken     = access_token;
+          expiryTimestamp = Date.now() + expires_in * 1000;
+          localStorage.setItem('spotify_access_token', accessToken);
+          localStorage.setItem('spotify_expiry_timestamp', expiryTimestamp);
+        } catch {
+          window.location.href = 'login.html';
+          return;
+        }
+      }
+
+      await loadDashboard(accessToken);
+    }
+
+    async function spotifyGet(path, token) {
+      const res = await fetch(`https://api.spotify.com/v1${path}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(`Spotify API error ${res.status} on ${path}`);
+      return res.json();
+    }
+
+    async function fetchAllPlaylists(token) {
+      const playlists = [];
+      let url = 'https://api.spotify.com/v1/me/playlists?limit=50';
+      while (url) {
+        const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) break;
+        const data = await res.json();
+        playlists.push(...(data.items || []));
+        url = data.next;
+      }
+      return playlists;
+    }
+
+    async function fetchPlaylistTracks(playlistId, token) {
+      try {
+        const data = await spotifyGet(
+          `/playlists/${playlistId}/items?limit=50&fields=items(track(artists))`,
+          token
+        );
+        return (data.items || []).map(i => i.track).filter(Boolean);
+      } catch { return []; }
+    }
+
+    async function loadProfile(token) {
+      try {
+        const me     = await spotifyGet('/me', token);
+        const btn    = document.getElementById('profileNavBtn');
+        const avatar = document.getElementById('navAvatar');
+
+        if (me.external_urls?.spotify) btn.href = me.external_urls.spotify;
+
+        const imgUrl = me.images?.[0]?.url;
+        if (imgUrl) {
+          avatar.outerHTML = `<img class="nav-avatar" id="navAvatar" src="${escapeHtml(imgUrl)}" alt="Profile" />`;
+        } else {
+          avatar.textContent = (me.display_name || me.id || '?')[0].toUpperCase();
+        }
+      } catch { /* leave placeholder */ }
+    }
+
+    async function loadDashboard(token) {
+      const playlistContainer = document.getElementById('playlistContainer');
+      const artistContainer   = document.getElementById('artistContainer');
+
+      const [all] = await Promise.all([
+        fetchAllPlaylists(token),
+        loadProfile(token),
+      ]);
+
+      const remixPlaylists = all.filter(pl =>
+        pl.description && pl.description.includes(MARKER)
+      );
+
+      try {
+        if (!remixPlaylists.length) {
+          playlistContainer.innerHTML = '<p style="color:#bbb;font-size:14px;">No generated remix playlists found.</p>';
+        } else {
+          playlistContainer.innerHTML = '';
+          remixPlaylists.forEach(pl => {
+            const img  = pl.images?.[0]?.url;
+            const card = document.createElement('div');
+            card.className = 'playlist-card';
+            card.style.cursor = 'pointer';
+            card.innerHTML = `
+              ${img
+                ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(pl.name)}" />`
+                : `<div style="width:150px;height:150px;background:#222;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:40px;">🎵</div>`
+              }
+              <h3>${escapeHtml(pl.name)}</h3>
+              <p>${pl.tracks?.total ?? 0} tracks</p>
+            `;
+            card.addEventListener('click', () => {
+              window.location.href = `view-songs.html?id=${pl.id}`;
+            });
+            playlistContainer.appendChild(card);
+          });
+        }
+
+        const artistCount = new Map();
+        const artistMeta  = new Map();
+        artistContainer.innerHTML = '<p style="color:#bbb;font-size:14px;">Loading artists…</p>';
+
+        await Promise.all(remixPlaylists.map(async pl => {
+          const tracks = await fetchPlaylistTracks(pl.id, token);
+          for (const track of tracks) {
+            for (const artist of (track.artists || [])) {
+              if (!artist?.id) continue;
+              artistCount.set(artist.id, (artistCount.get(artist.id) || 0) + 1);
+              if (!artistMeta.has(artist.id)) {
+                artistMeta.set(artist.id, { id: artist.id, name: artist.name, image: null, genres: '', spotifyUrl: null });
+              }
+            }
+          }
+        }));
+
+        const sorted = [...artistCount.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 10)
+          .map(([id]) => artistMeta.get(id));
+
+        await Promise.all(sorted.map(async artist => {
+          try {
+            const data        = await spotifyGet(`/artists/${artist.id}`, token);
+            artist.image      = data.images?.[1]?.url || data.images?.[0]?.url || null;
+            artist.genres     = data.genres?.[0] || '';
+            artist.spotifyUrl = data.external_urls?.spotify || null;
+          } catch { /* skip */ }
+        }));
+
+        if (!sorted.length) {
+          artistContainer.innerHTML = '<p style="color:#bbb;font-size:14px;">No artists found.</p>';
+        } else {
+          artistContainer.innerHTML = '';
+          sorted.forEach(artist => {
+            const card = document.createElement('div');
+            card.className = 'artist-card';
+            if (artist.spotifyUrl) card.style.cursor = 'pointer';
+            card.innerHTML = `
+              ${artist.image
+                ? `<img src="${escapeHtml(artist.image)}" alt="${escapeHtml(artist.name)}" />`
+                : `<div style="width:150px;height:150px;background:#222;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;">🎤</div>`
+              }
+              <h3>${escapeHtml(artist.name)}</h3>
+              <p>${escapeHtml(artist.genres)}</p>
+            `;
+            if (artist.spotifyUrl) {
+              card.addEventListener('click', () => {
+                window.open(artist.spotifyUrl, '_blank', 'noopener');
+              });
+            }
+            artistContainer.appendChild(card);
+          });
+        }
+
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+        playlistContainer.innerHTML = '<p style="color:#bbb;font-size:14px;">Could not load playlists.</p>';
+        artistContainer.innerHTML   = '<p style="color:#bbb;font-size:14px;">Could not load artists.</p>';
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    document.querySelector('.sidebar-overlay')?.addEventListener('click', () => {
+      document.body.classList.remove('sidebar-open');
+    });
+
+    initDashboard();
+  </script>
+</body>
+</html>
