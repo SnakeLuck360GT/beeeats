@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function(){var t=localStorage.getItem('beeeats_theme');if(t==='light')document.documentElement.classList.add('light-mode');})();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../assets/css/logout-modal.css">
+  <link rel="stylesheet" href="../assets/css/friends.css">
+  <title>BEEEATS – Friends</title>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1 class="text-logo">BEEEATS</h1>
+      <nav class="nav">
+        <a class="nav-item" href="dashboard.html">Home</a>
+        <a class="nav-item" href="playlist-mixing/select-playlist.html">Playlist Mixing</a>
+        <a class="nav-item" href="profile.html">Profile</a>
+        <a class="nav-item active" href="friends.html">Friends</a>
+        <a class="nav-item" onclick="showLogoutModal()" style="cursor:pointer;">Log Out</a>
+      </nav>
+    </aside>
+
+    <main class="main friends-main">
+      <a class="back-link" href="dashboard.html">← BACK</a>
+      <h1 class="page-heading">FRIENDS</h1>
+
+      <!-- ADD FRIEND -->
+      <div class="profile-card">
+        <p class="card-label">Add a Friend</p>
+        <p class="friends-hint">Enter their Spotify username (e.g. "deazza")</p>
+        <div class="search-row">
+          <input
+            type="text"
+            id="friendSearchInput"
+            class="friend-input"
+            placeholder="Spotify username..."
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="friend-add-btn" id="friendSearchBtn">ADD</button>
+        </div>
+        <p class="search-feedback" id="searchFeedback"></p>
+      </div>
+
+      <!-- PENDING REQUESTS -->
+      <div class="profile-card" id="pendingCard" style="display:none;">
+        <p class="card-label">Pending Requests</p>
+        <div id="pendingList"></div>
+      </div>
+
+      <!-- FRIENDS LIST -->
+      <div class="profile-card">
+        <p class="card-label">Your Friends</p>
+        <div id="friendsList">
+          <p class="friends-empty">Loading…</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a class="bottom-nav-item" href="dashboard.html">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Home
+    </a>
+    <a class="bottom-nav-item add-btn" href="playlist-mixing/select-playlist.html">
+      <div class="add-circle">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </div>
+    </a>
+    <a class="bottom-nav-item active" href="friends.html">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;fill:currentColor;">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+      Friends
+    </a>
+  </nav>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="logout-overlay hidden" onclick="hideLogoutModal()">
+    <div class="logout-card" onclick="event.stopPropagation()">
+      <p class="logout-title">Log out?</p>
+      <p class="logout-sub">You'll need to reconnect with Spotify to use BEEEATS</p>
+      <button class="logout-confirm-btn" onclick="confirmLogout()">Log out</button>
+      <button class="logout-cancel-btn" onclick="hideLogoutModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="../../backend/auth.js"></script>
+  <script src="../../backend/logout-modal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../backend/config.js"></script>
+  <script src="../../backend/supabase.js"></script>
+  <script src="../../backend/friends.js"></script>
+  <script>
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function setFeedback(msg, isError = false) {
+      const el = document.getElementById('searchFeedback');
+      el.textContent = msg;
+      el.style.color = isError ? '#e74c3c' : '#FFD600';
+    }
+
+    function renderFriendRow(friend) {
+      const div = document.createElement('div');
+      div.className = 'friend-row';
+      const initial = (friend.display_name || friend.spotify_id || '?')[0].toUpperCase();
+      const avatarContent = friend.avatar_url
+        ? `<img src="${escapeHtml(friend.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+        : escapeHtml(initial);
+      div.innerHTML = `
+        <div class="friend-avatar${friend.avatar_url ? ' has-image' : ''}">${avatarContent}</div>
+        <div class="friend-info">
+          <p class="friend-name">${escapeHtml(friend.display_name || friend.spotify_id)}</p>
+          <p class="friend-id">@${escapeHtml(friend.spotify_id)}</p>
+        </div>
+        <a class="view-playlists-btn" href="friend-profile.html?id=${encodeURIComponent(friend.spotify_id)}">
+          VIEW MIXES
+        </a>
+      `;
+      return div;
+    }
+
+    function renderPendingRow(request) {
+      const div = document.createElement('div');
+      div.className = 'friend-row';
+      const initial = (request.display_name || request.spotify_id || '?')[0].toUpperCase();
+      const avatarContent = request.avatar_url
+        ? `<img src="${escapeHtml(request.avatar_url)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+        : escapeHtml(initial);
+      div.innerHTML = `
+        <div class="friend-avatar${request.avatar_url ? ' has-image' : ''}">${avatarContent}</div>
+        <div class="friend-info">
+          <p class="friend-name">${escapeHtml(request.display_name || request.spotify_id)}</p>
+          <p class="friend-id">@${escapeHtml(request.spotify_id)}</p>
+        </div>
+        <div class="pending-actions">
+          <button class="accept-btn" data-id="${escapeHtml(request.friendship_id)}">ACCEPT</button>
+          <button class="decline-btn" data-id="${escapeHtml(request.friendship_id)}">DECLINE</button>
+        </div>
+      `;
+      div.querySelector('.accept-btn').addEventListener('click', async (e) => {
+        await acceptFriendRequest(e.target.dataset.id);
+        await loadPage();
+      });
+      div.querySelector('.decline-btn').addEventListener('click', async (e) => {
+        await declineFriendRequest(e.target.dataset.id);
+        await loadPage();
+      });
+      return div;
+    }
+
+    async function loadPage() {
+      const myId = localStorage.getItem('spotify_id');
+
+      const [pending, friends] = await Promise.all([
+        getPendingRequests(myId),
+        getFriends(myId),
+      ]);
+
+      const pendingCard = document.getElementById('pendingCard');
+      const pendingList = document.getElementById('pendingList');
+      if (pending.length > 0) {
+        pendingCard.style.display = 'block';
+        pendingList.innerHTML = '';
+        pending.forEach(r => pendingList.appendChild(renderPendingRow(r)));
+      } else {
+        pendingCard.style.display = 'none';
+      }
+
+      const friendsList = document.getElementById('friendsList');
+      if (friends.length === 0) {
+        friendsList.innerHTML = '<p class="friends-empty">No friends yet — add some above!</p>';
+      } else {
+        friendsList.innerHTML = '';
+        friends.forEach(f => friendsList.appendChild(renderFriendRow(f)));
+      }
+    }
+
+    async function init() {
+      requireAuth();
+      await refreshTokenIfNeeded();
+      setupSessionClear();
+      startOwnershipCheck();
+
+      const myId = localStorage.getItem('spotify_id');
+
+      document.getElementById('friendSearchBtn').addEventListener('click', async () => {
+        const input    = document.getElementById('friendSearchInput');
+        const targetId = input.value.trim().toLowerCase();
+        if (!targetId) { setFeedback('Enter a Spotify username.', true); return; }
+        if (targetId === myId) { setFeedback("That's you!", true); return; }
+
+        const btn = document.getElementById('friendSearchBtn');
+        btn.disabled    = true;
+        btn.textContent = '...';
+        try {
+          const result = await sendFriendRequest(myId, targetId);
+          if      (result.error === 'not_found')      setFeedback('No BEEEATS user found with that username.', true);
+          else if (result.error === 'already_friends') setFeedback('Already friends!', true);
+          else if (result.error === 'already_pending') setFeedback('Request already sent.', true);
+          else { setFeedback('Friend request sent!'); input.value = ''; }
+        } catch {
+          setFeedback('Something went wrong. Try again.', true);
+        }
+        btn.disabled    = false;
+        btn.textContent = 'ADD';
+      });
+
+      document.getElementById('friendSearchInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('friendSearchBtn').click();
+      });
+
+      await loadPage();
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -5,11 +5,10 @@
 
 
   const SLIDERS = [
-    { key: 'energy',      leftLabel: 'Mellow',     rightLabel: 'Intense' },
-    { key: 'instrument',  leftLabel: 'Acoustic',   rightLabel: 'Electronic' },
-    { key: 'mood',        leftLabel: 'Dark',       rightLabel: 'Bright' },
-    { key: 'formation',   leftLabel: 'Solo',       rightLabel: 'Band' },
-    { key: 'era',         leftLabel: 'Old School', rightLabel: 'New Releases' },
+    { key: 'energy',      leftLabel: 'Mellow',   rightLabel: 'Intense' },
+    { key: 'instrument',  leftLabel: 'Acoustic', rightLabel: 'Electronic' },
+    { key: 'mood',        leftLabel: 'Dark',     rightLabel: 'Bright' },
+    { key: 'formation',   leftLabel: 'Solo',     rightLabel: 'Band' },
   ];
 
   const saved = getState().sliders || {};
@@ -55,12 +54,50 @@
     else if (val < 45) row.classList.add('leaning-left');
   }
 
+  // ── Era dual-range slider ────────────────────────────────────────────────────
+  const ERA_YEAR_MIN = 1950, ERA_YEAR_MAX = 2025;
+  const eraMinEl    = document.getElementById('slider-era-min');
+  const eraMaxEl    = document.getElementById('slider-era-max');
+  const eraFill     = document.getElementById('fill-era');
+  const eraLabelMin = document.getElementById('era-label-min');
+  const eraLabelMax = document.getElementById('era-label-max');
+
+  // Restore from saved state
+  eraMinEl.value = saved.eraMin ?? 1960;
+  eraMaxEl.value = saved.eraMax ?? 2025;
+
+  function updateEra() {
+    let minVal = parseInt(eraMinEl.value, 10);
+    let maxVal = parseInt(eraMaxEl.value, 10);
+    // Prevent crossing
+    if (minVal > maxVal) { eraMinEl.value = minVal = maxVal; }
+    if (maxVal < minVal) { eraMaxEl.value = maxVal = minVal; }
+
+    const span     = ERA_YEAR_MAX - ERA_YEAR_MIN;
+    const leftPct  = ((minVal - ERA_YEAR_MIN) / span) * 100;
+    const rightPct = ((maxVal - ERA_YEAR_MIN) / span) * 100;
+
+    eraFill.style.left  = leftPct + '%';
+    eraFill.style.width = (rightPct - leftPct) + '%';
+
+    eraLabelMin.textContent = minVal;
+    eraLabelMax.textContent = maxVal;
+
+    saveSliders();
+  }
+
+  updateEra();
+  eraMinEl.addEventListener('input', updateEra);
+  eraMaxEl.addEventListener('input', updateEra);
+
   function saveSliders() {
     const sliders = {};
     SLIDERS.forEach(({ key }) => {
       const el = document.getElementById(`slider-${key}`);
       if (el) sliders[key] = parseInt(el.value, 10);
     });
+    sliders.eraMin = parseInt(eraMinEl.value, 10);
+    sliders.eraMax = parseInt(eraMaxEl.value, 10);
     setState({ sliders });
   }
 

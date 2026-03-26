@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap');
+
+/* ── Dark mode (default) ─────────────────────────────────────────────────── */
 :root {
   --bg:       #000000;
   --surface:  #000000;
@@ -8,11 +10,24 @@
   --accent2:  #35173D;
   --accent3:  #47d4ff;
   --text:     #FFFFFF;
+  --muted:    #888888;
   --border:   rgba(255, 255, 255, 0.07);
   --glow:     rgba(232, 255, 71, 0.15);
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-lg: 8px;
+}
+
+/* ── Light mode overrides ────────────────────────────────────────────────── */
+html.light-mode {
+  --bg:       #f5f5f5;
+  --surface:  #ffffff;
+  --surface2: #e8e8e8;
+  --text:     #111111;
+  --muted:    #666666;
+  --border:   rgba(0, 0, 0, 0.1);
+  --glow:     rgba(200, 160, 0, 0.12);
+  /* Keep accent colours the same */
 }
 
 *, *::before, *::after {
@@ -31,6 +46,7 @@ body {
   overflow-x: hidden;
   position: relative;
   animation: pageFadeIn 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 @keyframes pageFadeIn {
@@ -48,6 +64,12 @@ body::before {
     radial-gradient(ellipse 40% 40% at 60% 10%, rgba(71,  212, 255, 0.03) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+}
+
+html.light-mode body::before {
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(255, 214, 0, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(100, 0, 180, 0.04) 0%, transparent 60%);
 }
 
 body::after {
@@ -134,13 +156,17 @@ body::after {
 .page-subtitle {
   font-family: 'Metal Mania', system-ui;
   font-size: 26px;
-  color: #FFFFFF;
+  color: var(--text);
   letter-spacing: 0.08em;
   text-shadow: 1px 1px 0px #4E0085;
   text-align: center;
   margin-bottom: 36px;
   font-weight: 400;
   animation: revealUp 0.5s ease 0.3s both;
+}
+
+html.light-mode .page-subtitle {
+  text-shadow: 1px 1px 0px rgba(78, 0, 133, 0.3);
 }
 
 @keyframes revealUp {
@@ -202,6 +228,10 @@ body::after {
 .btn-ghost:hover {
   color: var(--text);
   border-color: rgba(255, 255, 255, 0.22);
+}
+
+html.light-mode .btn-ghost:hover {
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
 a.btn-ghost {
@@ -266,6 +296,7 @@ a.btn-ghost {
 @media (max-width: 600px) {
   .page-wrapper { padding: 80px 16px 40px; }
   .selection-summary { display: none; }
+  .title-display { line-height: 1.2; }
 }
 
 .layout {

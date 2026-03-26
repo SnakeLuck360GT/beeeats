@@ -1,6 +1,7 @@
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
-function getSpotifyAccessToken() {
+async function getSpotifyAccessToken() {
+  await refreshTokenIfNeeded();
   const token = localStorage.getItem('spotify_access_token');
   if (!token) {
     throw new Error('Missing Spotify access token. Complete Spotify login first.');
@@ -9,7 +10,7 @@ function getSpotifyAccessToken() {
 }
 
 async function spotifyRequest(path, options = {}) {
-  const token = getSpotifyAccessToken();
+  const token = await getSpotifyAccessToken();
   const res = await fetch(`${SPOTIFY_API_BASE}${path}`, {
     ...options,
     headers: {
@@ -126,4 +127,3 @@ async function playFullTrackOnActiveDevice(trackUri) {
     body: JSON.stringify({ uris: [trackUri] }),
   });
 }
-

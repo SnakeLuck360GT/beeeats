@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../assets/css/logout-modal.css">
+  <title>BEEEATS – Profile</title>
+  <style>
+    .profile-main {
+      max-width: 640px;
+      padding: 40px 24px 80px;
+      margin-left: calc(50% - 320px + 148px);
+    }
+
+    @media (max-width: 1023px) {
+      .profile-main {
+        margin-left: calc(50% - 320px + 120px); /* 240 / 2 */
+      }
+    }
+
+    @media (max-width: 767px) {
+      .profile-main {
+        margin-left: calc(50% - 320px + 100px); /* 200 / 2 */
+      }
+    }
+
+    @media (max-width: 639px) {
+      .profile-main {
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #888;
+      text-decoration: none;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      margin-bottom: 28px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #FFD600; }
+
+    .page-heading {
+      font-family: 'Sixtyfour', monospace;
+      font-size: clamp(28px, 6vw, 44px);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      margin-bottom: 32px;
+      color: #fff;
+      transition: color 0.3s ease;
+    }
+    html.light-mode .page-heading { color: #111; }
+
+    .profile-card {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    html.light-mode .profile-card {
+      background: #fff;
+      border-color: rgba(0,0,0,0.1);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .card-label {
+      font-family: 'Sixtyfour', monospace;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      color: #888;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    html.light-mode .card-label { color: #999; }
+
+    /* User info */
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .user-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #222;
+      border: 2px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      overflow: hidden;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+    html.light-mode .user-avatar { background: #eee; border-color: rgba(0,0,0,0.1); }
+    .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-avatar.has-image { border-color: #FFD600; }
+
+    .user-details { flex: 1; min-width: 0; }
+
+    .user-name {
+      font-family: 'Sixtyfour', monospace;
+      font-size: 16px;
+      font-weight: 400;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 8px;
+      transition: color 0.3s ease;
+    }
+    html.light-mode .user-name { color: #111; }
+
+    .account-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      color: #888;
+      transition: all 0.3s ease;
+    }
+    html.light-mode .account-badge { border-color: rgba(0,0,0,0.1); color: #666; }
+    .account-badge.premium { border-color: #FFD600; color: #FFD600; }
+    .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    .spotify-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      color: #666;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 5px 10px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    html.light-mode .spotify-link { border-color: rgba(0,0,0,0.1); color: #888; }
+    .spotify-link:hover { color: #FFD600; border-color: #FFD600; }
+
+    .card-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.07);
+      margin: 20px 0;
+      transition: background 0.3s ease;
+    }
+    html.light-mode .card-divider { background: rgba(0,0,0,0.08); }
+
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-item { text-align: center; }
+    .stat-value {
+      display: block;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 20px;
+      color: #FFD600;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-family: 'Sixtyfour', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      color: #888;
+      text-transform: uppercase;
+    }
+    html.light-mode .stat-label { color: #999; }
+
+    /* Genres */
+    .genres-hint {
+      font-size: 11px;
+      color: #666;
+      font-family: 'Arial', sans-serif;
+      margin-bottom: 14px;
+      transition: color 0.3s ease;
+    }
+    html.light-mode .genres-hint { color: #888; }
+
+    .genres-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+
+    .genre-chip {
+      background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 6px 13px;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 8px;
+      letter-spacing: 0.07em;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    html.light-mode .genre-chip { background: #f0f0f0; border-color: rgba(0,0,0,0.1); color: #666; }
+    .genre-chip:hover:not(:disabled) { border-color: #FFD600; color: #fff; }
+    html.light-mode .genre-chip:hover:not(:disabled) { color: #111; }
+    .genre-chip.selected { background: #FFD600; border-color: #FFD600; color: #000; }
+    .genre-chip:disabled { opacity: 0.3; cursor: not-allowed; }
+    .genre-chip.selected:disabled { opacity: 1; cursor: pointer; }
+
+    /* Appearance */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .setting-name {
+      font-family: 'Sixtyfour', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: #fff;
+      margin-bottom: 3px;
+      transition: color 0.3s ease;
+    }
+    html.light-mode .setting-name { color: #111; }
+    .setting-desc { font-size: 11px; color: #666; font-family: 'Arial', sans-serif; }
+    html.light-mode .setting-desc { color: #888; }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #333;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 13px;
+      transition: all 0.25s ease;
+    }
+    html.light-mode .toggle-track { background: #ddd; border-color: rgba(0,0,0,0.1); }
+    .toggle input:checked + .toggle-track { background: #FFD600; border-color: #FFD600; }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.25s ease;
+      pointer-events: none;
+    }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(22px); }
+
+    /* Save toast */
+    .save-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(60px);
+      background: #FFD600;
+      color: #000;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      padding: 11px 22px;
+      border-radius: 30px;
+      opacity: 0;
+      transition: all 0.28s ease;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 999;
+    }
+    .save-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Logout */
+    .logout-row { display: flex; justify-content: flex-end; }
+    .logout-btn {
+      background: none;
+      border: 1px solid rgba(192,57,43,0.3);
+      border-radius: 8px;
+      color: #c0392b;
+      font-family: 'Sixtyfour', monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .logout-btn:hover { background: rgba(192,57,43,0.1); border-color: #c0392b; }
+
+    @media (max-width: 480px) {
+      .profile-main { padding: 24px 16px 80px; }
+      .user-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <script src="../../backend/theme.js"></script>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <h1 class="text-logo">BEEEATS</h1>
+      <nav class="nav">
+        <a class="nav-item" href="dashboard.html">Home</a>
+        <a class="nav-item" href="playlist-mixing/select-playlist.html">Playlist Mixing</a>
+        <a class="nav-item active" href="profile.html">Profile</a>
+        <a class="nav-item" href="friends.html">Friends</a>
+        <a class="nav-item" onclick="showLogoutModal()" style="cursor:pointer;">Log Out</a>
+      </nav>
+    </aside>
+
+    <main class="main profile-main">
+      <a class="back-link" href="dashboard.html">← BACK</a>
+      <h1 class="page-heading">PROFILE</h1>
+
+      <div class="profile-card">
+        <p class="card-label">Your Account</p>
+        <div class="user-row">
+          <div class="user-avatar" id="avatarEl">👤</div>
+          <div class="user-details">
+            <p class="user-name" id="displayNameEl">Loading…</p>
+            <span class="account-badge" id="accountBadge">
+              <span class="badge-dot"></span>
+              <span id="accountTypeEl">FREE</span>
+            </span>
+            <br/>
+            <a class="spotify-link" id="spotifyProfileLink" href="#" target="_blank" rel="noopener" style="display:none;">
+              ↗ OPEN IN SPOTIFY
+            </a>
+          </div>
+        </div>
+        <div class="card-divider"></div>
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-value" id="statPlaylists">—</span>
+            <span class="stat-label">Remix Playlists</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="statFollowers">—</span>
+            <span class="stat-label">Followers</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <p class="card-label">Preferred Genres</p>
+        <p class="genres-hint" id="genresHint">0 / 5 — pre-selected when you start a new mix</p>
+        <div class="genres-grid" id="genresGrid"></div>
+      </div>
+
+      <div class="profile-card">
+        <p class="card-label">Appearance</p>
+        <div class="setting-row">
+          <div>
+            <p class="setting-name">LIGHT MODE</p>
+            <p class="setting-desc">Switch to a lighter colour scheme across the whole app</p>
+          </div>
+          <label class="toggle" aria-label="Toggle light mode">
+            <input type="checkbox" id="lightModeToggle" />
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="logout-row">
+          <button class="logout-btn" id="logoutBtn">LOG OUT</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a class="bottom-nav-item" href="dashboard.html">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Home
+    </a>
+    <a class="bottom-nav-item add-btn" href="playlist-mixing/select-playlist.html">
+      <div class="add-circle">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </div>
+    </a>
+    <a class="bottom-nav-item active" href="profile.html">
+      <div class="nav-avatar-placeholder" id="navAvatar">👤</div>
+      Profile
+    </a>
+  </nav>
+
+  <div class="save-toast" id="saveToast">SAVED</div>
+
+  <div id="logoutModal" class="logout-overlay hidden" onclick="hideLogoutModal()">
+    <div class="logout-card" onclick="event.stopPropagation()">
+      <p class="logout-title">Log out?</p>
+      <p class="logout-sub">You'll need to reconnect with Spotify to use BEEEATS</p>
+      <button class="logout-confirm-btn" onclick="confirmLogout()">Log out</button>
+      <button class="logout-cancel-btn" onclick="hideLogoutModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="../../backend/auth.js"></script>
+  <script src="../../backend/state.js"></script>
+  <script src="../../backend/logout-modal.js"></script>
+  <script>
+    const REMIX_MARKER = 'Generated remix playlist';
+    const PROFILE_KEY  = 'beeeats_profile_prefs';
+    const MAX_GENRES   = 5;
+
+    const GENRES = [
+      'Hip-Hop','R&B','Pop','Rock','Indie','Electronic','House','Techno',
+      'Ambient','Jazz','Soul','Funk','Classical','Metal','Punk','Reggae',
+      'Latin','Afrobeats','K-Pop','Country','Blues','Gospel','Trap','Lo-Fi',
+      'Drum & Bass','Shoegaze','Post-Rock','Neo-Soul','Synth-Pop','Alternative',
+      'Disco','Garage','Psychedelic','Folk','Grunge','New Wave',
+    ];
+
+    function loadPrefs() {
+      try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}'); } catch { return {}; }
+    }
+    function savePrefs(p) {
+      try { localStorage.setItem(PROFILE_KEY, JSON.stringify(p)); } catch {}
+    }
+
+    let toastTimer;
+    function flashSaved() {
+      const el = document.getElementById('saveToast');
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+    }
+
+    // ── Genres ────────────────────────────────────────────────────────────────
+    let selectedGenres = [];
+
+    function renderGenres() {
+      const grid = document.getElementById('genresGrid');
+      grid.innerHTML = '';
+      const full = selectedGenres.length >= MAX_GENRES;
+      GENRES.forEach(g => {
+        const btn = document.createElement('button');
+        btn.className = 'genre-chip' + (selectedGenres.includes(g) ? ' selected' : '');
+        btn.textContent = g;
+        btn.disabled = full && !selectedGenres.includes(g);
+        btn.addEventListener('click', () => toggleGenre(g));
+        grid.appendChild(btn);
+      });
+      document.getElementById('genresHint').textContent =
+        `${selectedGenres.length} / ${MAX_GENRES} — pre-selected when you start a new mix`;
+    }
+
+    function toggleGenre(g) {
+      const idx = selectedGenres.indexOf(g);
+      if (idx > -1) { selectedGenres.splice(idx, 1); }
+      else { if (selectedGenres.length >= MAX_GENRES) return; selectedGenres.push(g); }
+      renderGenres();
+      const prefs = loadPrefs();
+      prefs.preferredGenres = [...selectedGenres];
+      savePrefs(prefs);
+      setState({ selectedGenres: [...selectedGenres] });
+      flashSaved();
+    }
+
+    // ── Theme ─────────────────────────────────────────────────────────────────
+    function initThemeToggle() {
+      const toggle = document.getElementById('lightModeToggle');
+      toggle.checked = BeeTheme.get() === 'light';
+      toggle.addEventListener('change', () => {
+        BeeTheme.set(toggle.checked ? 'light' : 'dark');
+        flashSaved();
+      });
+    }
+
+    // ── Spotify ───────────────────────────────────────────────────────────────
+    async function spotifyGet(path, token) {
+      const res = await fetch(`https://api.spotify.com/v1${path}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(`Spotify ${res.status}`);
+      return res.json();
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    async function loadSpotifyProfile(token) {
+      try {
+        const me = await spotifyGet('/me', token);
+
+        const avatarEl = document.getElementById('avatarEl');
+        if (me.images?.[0]?.url) {
+          avatarEl.innerHTML = `<img src="${escapeHtml(me.images[0].url)}" alt="Profile" />`;
+          avatarEl.classList.add('has-image');
+          const nav = document.getElementById('navAvatar');
+          if (nav) nav.outerHTML = `<img class="nav-avatar" id="navAvatar" src="${escapeHtml(me.images[0].url)}" alt="Profile" />`;
+        } else {
+          avatarEl.textContent = (me.display_name || me.id || '?')[0].toUpperCase();
+        }
+
+        document.getElementById('displayNameEl').textContent = me.display_name || me.id || 'Unknown';
+
+        const isPremium = me.product === 'premium';
+        document.getElementById('accountTypeEl').textContent = isPremium ? 'PREMIUM' : 'FREE';
+        if (isPremium) document.getElementById('accountBadge').classList.add('premium');
+
+        if (me.external_urls?.spotify) {
+          const l = document.getElementById('spotifyProfileLink');
+          l.href = me.external_urls.spotify;
+          l.style.display = 'inline-flex';
+        }
+
+        document.getElementById('statFollowers').textContent =
+          me.followers?.total != null ? me.followers.total.toLocaleString() : '—';
+
+        let url = 'https://api.spotify.com/v1/me/playlists?limit=50';
+        let count = 0;
+        while (url) {
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+          if (!res.ok) break;
+          const data = await res.json();
+          count += (data.items || []).filter(pl => pl.description?.includes(REMIX_MARKER)).length;
+          url = data.next;
+        }
+        document.getElementById('statPlaylists').textContent = count;
+
+      } catch (err) {
+        console.error('Profile load error:', err);
+        document.getElementById('displayNameEl').textContent = 'Could not load profile';
+      }
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    async function init() {
+      requireAuth();
+      await refreshTokenIfNeeded();
+      const token = getSession().access_token;
+
+      const prefs = loadPrefs();
+      const state = getState();
+      selectedGenres = prefs.preferredGenres?.length
+        ? [...prefs.preferredGenres]
+        : (state.selectedGenres || []);
+
+      renderGenres();
+      initThemeToggle();
+      await loadSpotifyProfile(token);
+
+      document.getElementById('logoutBtn').addEventListener('click', showLogoutModal);
+      setupSessionClear();
+      startOwnershipCheck();
+    }
+
+    init();
+  </script>
+</body>
+</html>

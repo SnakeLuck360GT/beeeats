@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BEEEATS</title>
@@ -32,7 +33,7 @@
           <div class="satellite satellite--3"></div>
         </div>
 
-        <span class="label-step">Step 4 of 5</span>
+        <span class="label-step" id="labelStep">Step 1 of 5</span>
         <h1 class="title-display">BUILDING YOUR MIX</h1>
 
         <div class="status-wrap" role="status" aria-live="assertive">
@@ -49,26 +50,30 @@
           </div>
           <div class="gen-step" id="gs1">
             <div class="gs-icon"></div>
-            <span>Genre matching</span>
+            <span>Similar artists</span>
           </div>
           <div class="gen-step" id="gs2">
             <div class="gs-icon"></div>
-            <span>Vibe analysis</span>
+            <span>Vibe tags</span>
           </div>
           <div class="gen-step" id="gs3">
             <div class="gs-icon"></div>
-            <span>Track selection</span>
+            <span>Scoring</span>
           </div>
           <div class="gen-step" id="gs4">
             <div class="gs-icon"></div>
-            <span>Finalizing</span>
+            <span>Building flow</span>
           </div>
         </div>
       </main>
     </div>
   </div>
 
+  <script src="../../../backend/auth.js"></script>
+  <script>requireAuth();</script>
   <script src="../../../backend/state.js"></script>
+  <script src="../../../backend/config.js"></script>
+  <script src="../../../backend/lastfm-api.js"></script>
   <script src="../../../backend/generating.js"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BEEEATS</title>
@@ -34,8 +35,6 @@
                 <span class="meta-item" id="metaTracks">— tracks</span>
                 <span class="meta-sep">·</span>
                 <span class="meta-item" id="metaDuration">— min</span>
-                <span class="meta-sep">·</span>
-                <span class="meta-item meta-live" id="metaBpm">— avg BPM</span>
               </div>
             </div>
           </div>
@@ -55,6 +54,11 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../../backend/config.js"></script>
+  <script src="../../../backend/supabase.js"></script>
+  <script src="../../../backend/auth.js"></script>
+  <script>requireAuth();</script>
   <script src="../../../backend/state.js"></script>
   <script src="../../../backend/preview.js"></script>
 </body>

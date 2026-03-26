@@ -62,6 +62,20 @@
       );
     }
 
+    // Mirror to Supabase so friends can see this playlist
+    if (window.supabaseClient) {
+      try {
+        await mirrorPlaylistToSupabase(
+          playlist.id,
+          me.id,
+          nameToSave,
+          playlist.description,
+          trackIds.length,
+          playlist.external_urls?.spotify ?? null
+        );
+      } catch (err) { console.warn('Supabase mirror skipped:', err); }
+    }
+
     return playlist;
   }
 
@@ -102,10 +116,7 @@
   document.getElementById('metaDuration').textContent =
     `${Math.max(1, Math.floor(totalSecs / 60))} min`;
 
-  const avgBpm = 67;
-  document.getElementById('metaBpm').textContent = `${avgBpm} approx BPM`;
-
-  let currentlyPlaying = null;
+let currentlyPlaying = null;
   let currentAudio = null;
 
   function stopCurrentAudio() {

@@ -219,6 +219,7 @@
 }
 
 .track-badge {
+  display: none;
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -265,8 +266,15 @@
   .genre-tags      { justify-content: center; }
   .meta-row        { justify-content: center; }
   .track-list      { max-height: 220px; }
-  .track-item      { grid-template-columns: 30px 1fr 38px; }
-  .track-badge     { display: none; }
+  /* Hide badge wrapper div (3rd grid child) so it doesn't consume a column */
+  .track-item > div:nth-child(3) { display: none; }
+  /* 3-col grid: num | info | duration */
+  .track-item      { grid-template-columns: 30px 1fr 52px; }
+  /* Name + artist on one line */
+  .track-info      { display: flex; align-items: center; overflow: hidden; }
+  .track-info .track-name   { flex-shrink: 1; }
+  .track-info .track-artist { flex-shrink: 2; margin-top: 0; }
+  .track-info .track-artist::before { content: ' · '; flex-shrink: 0; opacity: 0.5; }
 }
 
 .btn-ghost, .btn-primary{

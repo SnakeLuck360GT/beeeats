@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BEEEATS</title>
@@ -70,15 +71,19 @@
             <span class="pole pole-right">Band</span>
           </div>
 
-          <div class="vibe-row" data-key="era">
-            <span class="pole pole-left">Old School</span>
-            <div class="slider-track-wrap">
+          <div class="vibe-row era-row" data-key="era">
+            <span class="pole pole-left era-pole" id="era-label-min">1960</span>
+            <div class="slider-track-wrap era-track-wrap">
               <div class="track-bg"></div>
-              <div class="track-fill" id="fill-era"></div>
-              <input type="range" min="0" max="100" value="45" id="slider-era" aria-label="Era: Old School to New Releases" />
-              <div class="thumb-tooltip" id="tip-era"></div>
+              <div class="track-range-fill" id="fill-era"></div>
+              <input type="range" min="1950" max="2025" value="1960"
+                     id="slider-era-min" class="era-handle"
+                     aria-label="Era: earliest year" />
+              <input type="range" min="1950" max="2025" value="2025"
+                     id="slider-era-max" class="era-handle"
+                     aria-label="Era: latest year" />
             </div>
-            <span class="pole pole-right">New Releases</span>
+            <span class="pole pole-right era-pole" id="era-label-max">2025</span>
           </div>
         </div>
 
@@ -92,6 +97,8 @@
     </div>
   </div>
 
+  <script src="../../../backend/auth.js"></script>
+  <script>requireAuth();</script>
   <script src="../../../backend/state.js"></script>
   <script src="../../../backend/vibes.js"></script>
 </body>

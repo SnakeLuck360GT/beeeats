@@ -2,6 +2,7 @@
   'use strict';
 
   const MAX = 5;
+  const PROFILE_KEY = 'beeeats_profile_prefs';
 
   const GENRES = [
     'Hip-Hop',    'R&B',       'Pop',         'Rock',     'Indie',
@@ -16,9 +17,20 @@
 
   renderChrome(1);
 
-
   const st = getState();
-  let selected = Array.isArray(st.selectedGenres) ? [...st.selectedGenres] : [];
+
+  // Seed: use current wizard state if present, otherwise fall back to profile preferred genres
+  let selected;
+  if (Array.isArray(st.selectedGenres) && st.selectedGenres.length > 0) {
+    selected = [...st.selectedGenres];
+  } else {
+    try {
+      const prefs = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
+      selected = Array.isArray(prefs.preferredGenres) ? [...prefs.preferredGenres] : [];
+    } catch {
+      selected = [];
+    }
+  }
 
   const cloud = document.getElementById('genresCloud');
 
@@ -86,8 +98,6 @@
     });
 
     document.getElementById('btnNext').disabled = count < MAX;
-
-
   }
 
   function saveGenres() {

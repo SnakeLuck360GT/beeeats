@@ -1,8 +1,14 @@
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: black;
-  color: white;
+  background: #000;
+  color: #fff;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+html.light-mode body {
+  background: #f5f5f5;
+  color: #111;
 }
 
 .menu-toggle {
@@ -74,6 +80,8 @@ body.sidebar-open .sidebar-overlay {
   transition: transform 0.3s ease, width 0.3s ease, min-width 0.3s ease;
 }
 
+/* Sidebar stays yellow in both modes — it's a brand colour */
+
 .sidebar .text-logo {
   font-family: "Sixtyfour", "Arial", sans-serif;
   font-size: 25px;
@@ -97,12 +105,13 @@ body.sidebar-open .sidebar-overlay {
   transition: color 0.2s ease;
 }
 
-.nav .nav-item:hover {
+.nav .nav-item:hover,
+.nav .nav-item.active {
   color: #ffffff;
   text-decoration: underline;
 }
 
-/* ── Bottom nav (mobile only, hidden by default) ──────────────────────── */
+/* ── Bottom nav (mobile only) ─────────────────────────────────────────── */
 .bottom-nav {
   display: none;
 }
@@ -113,7 +122,7 @@ body.sidebar-open .sidebar-overlay {
   margin-left: 296px;
   padding: 40px;
   min-width: 0;
-  transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s ease, background 0.3s ease;
 }
 
 .main .top-title-container { margin-bottom: 20px; }
@@ -142,6 +151,10 @@ body.sidebar-open .sidebar-overlay {
   color: #bbb;
 }
 
+html.light-mode .main .top-title-container .playlist-text {
+  color: #666;
+}
+
 .main .top-title .playlist-title {
   font-family: "Sixtyfour", "Arial", sans-serif;
   font-size: 35px;
@@ -153,6 +166,11 @@ body.sidebar-open .sidebar-overlay {
   font-size: 16px;
   font-weight: 400;
   text-align: left;
+  color: #bbb;
+}
+
+html.light-mode .main .top-title .playlist-text {
+  color: #666;
 }
 
 .main .playlist-container {
@@ -179,6 +197,13 @@ body.sidebar-open .sidebar-overlay {
   background: rgba(255,255,255,0.35);
 }
 
+html.light-mode .main .playlist-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+}
+html.light-mode .main .playlist-container::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.2);
+}
+
 .main .playlist-container .playlist-card,
 .main .playlist-container .artist-card {
   flex: 0 0 auto;
@@ -202,6 +227,11 @@ body.sidebar-open .sidebar-overlay {
 .artist-card h3   { margin: 12px 0 4px; font-size: 16px; }
 .artist-card p    { margin: 0; font-size: 13px; color: #bbb; }
 
+html.light-mode .playlist-card h3,
+html.light-mode .artist-card h3 { color: #111; }
+html.light-mode .playlist-card p,
+html.light-mode .artist-card p  { color: #555; }
+
 .playlist-card img,
 .artist-card img {
   width: 150px;
@@ -219,6 +249,10 @@ body.sidebar-open .sidebar-overlay {
   height: 150px;
 }
 
+/* loading-msg */
+.loading-msg { transition: color 0.3s ease; }
+html.light-mode .loading-msg { color: #666 !important; }
+
 /* ── Responsive ───────────────────────────────────────────────────────── */
 @media (max-width: 1199px) {
   .main .artist-container {
@@ -235,7 +269,10 @@ body.sidebar-open .sidebar-overlay {
 }
 
 @media (min-width: 1200px) {
-  .main .artist-container .artist-card { min-width: 150px; max-width: 180px; }
+  .main .artist-container .artist-card {
+    min-width: 150px;
+    max-width: 180px;
+  }
 }
 
 @media (max-width: 767px) {
@@ -243,9 +280,12 @@ body.sidebar-open .sidebar-overlay {
   .main    { margin-left: 200px; }
 
   .main .playlist-container .playlist-card,
-  .main .playlist-container .artist-card { min-width: 140px; max-width: 160px; }
-  .main .artist-container .artist-card   { min-width: 140px; max-width: 160px; }
-  .playlist-card img, .artist-card img   { width: 140px; height: 140px; }
+  .main .playlist-container .artist-card {
+    min-width: 140px;
+    max-width: 160px;
+  }
+  .main .artist-container .artist-card { min-width: 140px; max-width: 160px; }
+  .playlist-card img, .artist-card img { width: 140px; height: 140px; }
 
   .main .top-title .playlist-title,
   .main .title-row .playlist-title { font-size: 28px; overflow-wrap: anywhere; }
@@ -255,7 +295,6 @@ body.sidebar-open .sidebar-overlay {
 }
 
 @media (max-width: 639px) {
-  /* Hide hamburger on mobile — bottom nav takes over */
   .menu-toggle { display: none !important; }
 
   .sidebar {
@@ -274,7 +313,7 @@ body.sidebar-open .sidebar-overlay {
   .main .artist-container .artist-card   { min-width: 130px; max-width: 150px; }
   .playlist-card img, .artist-card img   { width: 130px; height: 130px; }
 
-  /* ── Bottom nav ────────────────────────────────────────────────────── */
+  /* ── Bottom nav ── */
   .bottom-nav {
     display: flex;
     position: fixed;
@@ -287,6 +326,12 @@ body.sidebar-open .sidebar-overlay {
     z-index: 200;
     align-items: center;
     overflow: visible;
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  html.light-mode .bottom-nav {
+    background: #fff;
+    border-top-color: rgba(0,0,0,0.1);
   }
 
   .bottom-nav-item {
@@ -310,13 +355,16 @@ body.sidebar-open .sidebar-overlay {
   .bottom-nav-item:hover,
   .bottom-nav-item.active { color: #FFD600; }
 
+  html.light-mode .bottom-nav-item { color: #999; }
+  html.light-mode .bottom-nav-item:hover,
+  html.light-mode .bottom-nav-item.active { color: #b8960a; }
+
   .bottom-nav-item svg {
     width: 22px;
     height: 22px;
     fill: currentColor;
   }
 
-  /* Centre + button */
   .bottom-nav-item.add-btn {
     color: #000;
     justify-content: center;
@@ -332,12 +380,16 @@ body.sidebar-open .sidebar-overlay {
     align-items: center;
     justify-content: center;
     color: #000;
-    box-shadow: 0 2px 16px rgba(255,214,0,0.5);
+    box-shadow: 0 2px 16px rgba(255, 214, 0, 0.5);
     transform: translateY(-35%);
     border: 3px solid #000;
+    transition: border-color 0.3s ease;
   }
 
-  /* Profile avatar */
+  html.light-mode .bottom-nav-item.add-btn .add-circle {
+    border-color: #f5f5f5;
+  }
+
   .bottom-nav-item .nav-avatar {
     width: 24px;
     height: 24px;
@@ -348,7 +400,9 @@ body.sidebar-open .sidebar-overlay {
   }
 
   .bottom-nav-item.active .nav-avatar,
-  .bottom-nav-item:hover .nav-avatar { border-color: #FFD600; }
+  .bottom-nav-item:hover .nav-avatar {
+    border-color: #FFD600;
+  }
 
   .bottom-nav-item .nav-avatar-placeholder {
     width: 24px;
@@ -363,8 +417,14 @@ body.sidebar-open .sidebar-overlay {
     transition: border-color 0.15s;
   }
 
+  html.light-mode .bottom-nav-item .nav-avatar-placeholder {
+    background: #ddd;
+  }
+
   .bottom-nav-item.active .nav-avatar-placeholder,
-  .bottom-nav-item:hover .nav-avatar-placeholder { border-color: #FFD600; }
+  .bottom-nav-item:hover .nav-avatar-placeholder {
+    border-color: #FFD600;
+  }
 }
 
 @media (max-width: 480px) {

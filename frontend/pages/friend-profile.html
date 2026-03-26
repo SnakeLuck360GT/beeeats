@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    (function(){var t=localStorage.getItem('beeeats_theme');if(t==='light')document.documentElement.classList.add('light-mode');})();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/dashboard.css">
+  <link rel="stylesheet" href="../assets/css/logout-modal.css">
+  <link rel="stylesheet" href="../assets/css/friends.css">
+  <title>BEEEATS – Friend's Mixes</title>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h1 class="text-logo">BEEEATS</h1>
+      <nav class="nav">
+        <a class="nav-item" href="dashboard.html">Home</a>
+        <a class="nav-item" href="playlist-mixing/select-playlist.html">Playlist Mixing</a>
+        <a class="nav-item" href="profile.html">Profile</a>
+        <a class="nav-item" href="friends.html">Friends</a>
+        <a class="nav-item" onclick="showLogoutModal()" style="cursor:pointer;">Log Out</a>
+      </nav>
+    </aside>
+
+    <main class="main friends-main">
+      <a class="back-link" href="friends.html">← BACK</a>
+
+      <!-- Friend header card -->
+      <div class="profile-card">
+        <div class="user-row">
+          <div class="friend-avatar-large" id="friendAvatarEl">?</div>
+          <div>
+            <h1 class="page-heading" id="friendNameEl" style="margin-bottom:4px;">Loading…</h1>
+            <p class="friends-hint" id="friendIdEl" style="margin-bottom:0;"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remix playlists -->
+      <div class="profile-card">
+        <p class="card-label">Remix Playlists</p>
+        <div id="friendPlaylistsContainer">
+          <p class="friends-empty">Loading playlists…</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav" aria-label="Mobile navigation">
+    <a class="bottom-nav-item" href="dashboard.html">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+      </svg>
+      Home
+    </a>
+    <a class="bottom-nav-item add-btn" href="playlist-mixing/select-playlist.html">
+      <div class="add-circle">
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </div>
+    </a>
+    <a class="bottom-nav-item" href="friends.html">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;fill:currentColor;">
+        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+      </svg>
+      Friends
+    </a>
+  </nav>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="logout-overlay hidden" onclick="hideLogoutModal()">
+    <div class="logout-card" onclick="event.stopPropagation()">
+      <p class="logout-title">Log out?</p>
+      <p class="logout-sub">You'll need to reconnect with Spotify to use BEEEATS</p>
+      <button class="logout-confirm-btn" onclick="confirmLogout()">Log out</button>
+      <button class="logout-cancel-btn" onclick="hideLogoutModal()">Cancel</button>
+    </div>
+  </div>
+
+  <script src="../../backend/auth.js"></script>
+  <script src="../../backend/logout-modal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../../backend/config.js"></script>
+  <script src="../../backend/supabase.js"></script>
+  <script src="../../backend/friends.js"></script>
+  <script>
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    async function init() {
+      requireAuth();
+      await refreshTokenIfNeeded();
+      setupSessionClear();
+      startOwnershipCheck();
+
+      const params   = new URLSearchParams(window.location.search);
+      const friendId = params.get('id');
+      if (!friendId) { window.location.href = 'friends.html'; return; }
+
+      // Populate header with what we know immediately
+      document.getElementById('friendNameEl').textContent = friendId;
+      document.getElementById('friendIdEl').textContent   = '@' + friendId;
+      document.getElementById('friendAvatarEl').textContent =
+        (friendId || '?')[0].toUpperCase();
+
+      const token = getSession().access_token;
+
+      const [userInfo, playlists] = await Promise.all([
+        getFriendInfo(friendId),
+        getFriendPlaylists(friendId),
+      ]);
+
+      if (userInfo) {
+        document.getElementById('friendNameEl').textContent =
+          userInfo.display_name || userInfo.spotify_id;
+        document.getElementById('friendIdEl').textContent =
+          '@' + userInfo.spotify_id;
+        const avatarEl = document.getElementById('friendAvatarEl');
+        if (userInfo.avatar_url) {
+          avatarEl.innerHTML =
+            `<img src="${escapeHtml(userInfo.avatar_url)}" alt="Avatar"
+                  style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
+        } else {
+          avatarEl.textContent =
+            (userInfo.display_name || userInfo.spotify_id || '?')[0].toUpperCase();
+        }
+        document.title = `BEEEATS – ${userInfo.display_name || userInfo.spotify_id}'s Mixes`;
+      }
+
+      await renderPlaylists(playlists, token);
+    }
+
+    async function fetchPlaylistCovers(playlistId, token) {
+      try {
+        const res = await fetch(
+          `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=4&fields=items(track(album(images)))`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) return [];
+        const data = await res.json();
+        const urls = [];
+        for (const item of (data.items || [])) {
+          const img = item.track?.album?.images?.[0]?.url;
+          if (img && !urls.includes(img)) urls.push(img);
+          if (urls.length >= 4) break;
+        }
+        return urls;
+      } catch { return []; }
+    }
+
+    function buildCoverGrid(imageUrls) {
+      if (!imageUrls.length) return '<div class="playlist-placeholder">🎵</div>';
+      if (imageUrls.length < 4) {
+        return `<img src="${escapeHtml(imageUrls[0])}" alt="" class="cover-single" />`;
+      }
+      return `<div class="cover-grid">
+        <img src="${escapeHtml(imageUrls[0])}" alt="" />
+        <img src="${escapeHtml(imageUrls[1])}" alt="" />
+        <img src="${escapeHtml(imageUrls[2])}" alt="" />
+        <img src="${escapeHtml(imageUrls[3])}" alt="" />
+      </div>`;
+    }
+
+    async function renderPlaylists(playlists, token) {
+      const container = document.getElementById('friendPlaylistsContainer');
+      if (!playlists.length) {
+        container.innerHTML = '<p class="friends-empty">No remix playlists yet.</p>';
+        return;
+      }
+
+      const coverResults = await Promise.all(
+        playlists.map(pl =>
+          pl.cover_url ? Promise.resolve(null) : fetchPlaylistCovers(pl.spotify_playlist_id, token)
+        )
+      );
+
+      container.innerHTML = '';
+      const grid = document.createElement('div');
+      grid.className = 'friend-playlists-grid';
+
+      playlists.forEach((pl, i) => {
+        const card = document.createElement('div');
+        card.className = 'friend-playlist-card';
+        const coverHtml = pl.cover_url
+          ? `<img src="${escapeHtml(pl.cover_url)}" alt="${escapeHtml(pl.name)}" class="cover-single" />`
+          : buildCoverGrid(coverResults[i]);
+
+        card.innerHTML = `
+          ${coverHtml}
+          <h3>${escapeHtml(pl.name)}</h3>
+          <p>${pl.track_count ?? 0} tracks</p>
+          <a class="open-spotify-link"
+             href="${escapeHtml(pl.external_url)}"
+             target="_blank"
+             rel="noopener">↗ Open in Spotify</a>
+        `;
+        grid.appendChild(card);
+      });
+      container.appendChild(grid);
+    }
+
+    init();
+  </script>
+</body>
+</html>

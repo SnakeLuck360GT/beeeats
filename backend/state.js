@@ -10,7 +10,8 @@ const DEFAULT_STATE = {
     instrument: 30,
     mood:       40,
     formation:  60,
-    era:        45,
+    eraMin:     1960,
+    eraMax:     2025,
   },
   generatedTracks: [],
   isPremium: false,
@@ -48,7 +49,10 @@ function navigateTo(step) {
   setState({ currentStep: step });
   document.body.style.transition = 'opacity 0.38s ease';
   document.body.style.opacity = '0';
-  setTimeout(() => { window.location.href = PAGES[step]; }, 380);
+  setTimeout(() => {
+    if (typeof markInternalNavigation === 'function') markInternalNavigation();
+    window.location.href = PAGES[step];
+  }, 380);
 }
 
 function renderChrome(activeStep) {

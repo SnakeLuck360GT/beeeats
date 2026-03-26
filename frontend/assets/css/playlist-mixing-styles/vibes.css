@@ -231,3 +231,71 @@ input[type='range']:focus {
 .btn-primary {
   background-color: #FFD600;
 }
+
+/* ── Era dual-range slider ──────────────────────────────────────────────── */
+.era-handle {
+  position: absolute;
+  width: 100%;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  z-index: 3;
+}
+
+.era-handle::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: all;
+  cursor: grab;
+  box-shadow:
+    0 0 0 3px rgba(232, 255, 71, 0.15),
+    0 0 14px rgba(232, 255, 71, 0.4),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.era-handle::-webkit-slider-thumb:hover,
+.era-handle:focus::-webkit-slider-thumb {
+  transform: scale(1.25);
+  box-shadow:
+    0 0 0 5px rgba(232, 255, 71, 0.18),
+    0 0 22px rgba(232, 255, 71, 0.55),
+    0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.era-handle::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: var(--accent);
+  border: none;
+  border-radius: 50%;
+  pointer-events: all;
+  cursor: grab;
+  box-shadow:
+    0 0 0 3px rgba(232, 255, 71, 0.15),
+    0 0 14px rgba(232, 255, 71, 0.4);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.era-handle::-moz-range-thumb:hover {
+  transform: scale(1.25);
+}
+
+.track-range-fill {
+  position: absolute;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(232, 255, 71, 0.2);
+  transition: left 0.05s linear, width 0.05s linear;
+}
+
+.era-pole {
+  min-width: 40px;
+  font-variant-numeric: tabular-nums;
+}

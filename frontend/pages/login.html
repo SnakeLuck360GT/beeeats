@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
     <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,17 @@
     <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="../../backend/config.js"></script>
+    <script src="../../backend/supabase.js"></script>
+    <script src="../../backend/auth.js"></script>
     <script src="../../backend/script.js"></script>
+    <script>
+      // If already logged in, skip straight to dashboard
+      if (getSession().access_token) {
+        window.location.href = 'dashboard.html';
+      }
+    </script>
     <div class="container">
         <h1 class="logo">BEEEATS</h1>
         <p class="tagline">one party, one playlist, everyone's vibe</p>
