@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEEEATS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/global.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/select-playlist.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main" style="padding: 0;">
+      <nav class="step-nav" id="stepNav" aria-label="Steps"></nav>
+
+      <main class="page-wrapper">
+        <span class="label-step">Step 1 of 5</span>
+        <h1 class="title-display">CHOOSE YOUR PLAYLIST</h1>
+        <p class="page-subtitle">Pick a starting playlist to build from</p>
+
+        <div class="playlists-grid" id="playlistsGrid">
+          <article class="playlist-card" data-id="1">
+            <h3 class="card-name">1</h3>
+            <p class="card-count">67 tracks</p>
+            <div class="card-bar"></div>
+          </article>
+          <article class="playlist-card" data-id="2">
+            <h3 class="card-name">2</h3>
+            <p class="card-count">62 tracks</p>
+            <div class="card-bar"></div>
+          </article>
+          <article class="playlist-card" data-id="3">
+            <h3 class="card-name">3</h3>
+            <p class="card-count">35 tracks</p>
+            <div class="card-bar"></div>
+          </article>
+          <article class="playlist-card" data-id="4">
+            <h3 class="card-name">4</h3>
+            <p class="card-count">54 tracks</p>
+            <div class="card-bar"></div>
+          </article>
+          <article class="playlist-card" data-id="5">
+            <h3 class="card-name">5</h3>
+            <p class="card-count">77 tracks</p>
+            <div class="card-bar"></div>
+          </article>
+          <article class="playlist-card" data-id="6">
+            <h3 class="card-name">6</h3>
+            <p class="card-count">41 tracks</p>
+            <div class="card-bar"></div>
+          </article>
+        </div>
+
+        <div class="nav-row">
+          <a href="../dashboard.html" class="btn-ghost">Back</a>
+          <button class="btn-primary btn-icon" id="btnNext" disabled>
+            Next — Pick Genres <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../../backend/auth.js"></script>
+  <script>requireAuth();</script>
+  <script src="../../../backend/state.js"></script>
+  <script src="../../../backend/playlist.js"></script>
+</body>
+
+</html>

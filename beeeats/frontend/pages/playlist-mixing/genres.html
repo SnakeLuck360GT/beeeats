@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEEEATS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../assets/css/dashboard.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/global.css" />
+  <link rel="stylesheet" href="../../assets/css/playlist-mixing-styles/genres.css" />
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main" style="padding: 0;">
+      <nav class="step-nav" id="stepNav" aria-label="Steps"></nav>
+
+      <main class="page-wrapper">
+        <span class="label-step">Step 2 of 5</span>
+        <h1 class="title-display">SELECT GENRES</h1>
+        <p class="page-subtitle">Select up to 5 genres to build your playlist</p>
+
+        <div class="genres-container">
+          <div class="genre-counter-row" aria-live="polite" aria-atomic="true">
+            <span class="counter-text">
+              <span id="genreCount">0</span><span class="counter-slash">/5</span> SELECTED
+            </span>
+            <div class="counter-pips" role="img" aria-label="Selection progress">
+              <div class="pip" id="pip0"></div>
+              <div class="pip" id="pip1"></div>
+              <div class="pip" id="pip2"></div>
+              <div class="pip" id="pip3"></div>
+              <div class="pip" id="pip4"></div>
+            </div>
+          </div>
+          <div class="genres-cloud" id="genresCloud" role="group" aria-label="Genre selection"></div>
+        </div>
+
+        <div class="nav-row">
+          <button class="btn-ghost" id="btnBack">← Back</button>
+          <button class="btn-primary btn-icon" id="btnNext" disabled>
+            Next — Set Vibe <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="../../../backend/auth.js"></script>
+  <script>requireAuth();</script>
+  <script src="../../../backend/state.js"></script>
+  <script src="../../../backend/genres.js"></script>
+</body>
+</html>

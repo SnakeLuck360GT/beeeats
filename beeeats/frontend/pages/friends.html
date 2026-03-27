@@ -34,7 +34,7 @@
       <!-- ADD FRIEND -->
       <div class="profile-card">
         <p class="card-label">Add a Friend</p>
-        <p class="friends-hint">Enter their Spotify display name or username</p>
+        <p class="friends-hint">Enter their Spotify username (e.g. "deazza")</p>
         <div class="search-row">
           <input
             type="text"
@@ -50,11 +50,9 @@
       </div>
 
       <!-- PENDING REQUESTS -->
-      <div class="profile-card" id="pendingCard">
+      <div class="profile-card" id="pendingCard" style="display:none;">
         <p class="card-label">Pending Requests</p>
-        <div id="pendingList">
-          <p class="friends-empty">No pending requests</p>
-        </div>
+        <div id="pendingList"></div>
       </div>
 
       <!-- FRIENDS LIST -->
@@ -176,12 +174,14 @@
         getFriends(myId),
       ]);
 
+      const pendingCard = document.getElementById('pendingCard');
       const pendingList = document.getElementById('pendingList');
       if (pending.length > 0) {
+        pendingCard.style.display = 'block';
         pendingList.innerHTML = '';
         pending.forEach(r => pendingList.appendChild(renderPendingRow(r)));
       } else {
-        pendingList.innerHTML = '<p class="friends-empty">No pending requests</p>';
+        pendingCard.style.display = 'none';
       }
 
       const friendsList = document.getElementById('friendsList');

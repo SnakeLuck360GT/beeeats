@@ -1,3 +1,30 @@
+// Redirect to dashboard if already logged in, refreshing token if needed
+(async () => {
+  const accessToken  = localStorage.getItem('spotify_access_token');
+  const refreshToken = localStorage.getItem('spotify_refresh_token');
+  const expiry       = localStorage.getItem('spotify_expiry_timestamp');
+
+  if (!refreshToken) return;
+
+  if (accessToken && Date.now() < Number(expiry)) {
+    window.location.href = 'dashboard.html';
+    return;
+  }
+
+  try {
+    const response = await fetch('https://spotifycallback.netlify.app/.netlify/functions/api/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: refreshToken }),
+    });
+    if (!response.ok) return;
+    const { access_token, expires_in } = await response.json();
+    localStorage.setItem('spotify_access_token', access_token);
+    localStorage.setItem('spotify_expiry_timestamp', Date.now() + expires_in * 1000);
+    window.location.href = 'dashboard.html';
+  } catch { }
+})();
+
 const scopes = [
   'user-read-currently-playing',
   'user-modify-playback-state',
@@ -8,56 +35,43 @@ const scopes = [
   'playlist-read-collaborative',
   'playlist-modify-private',
   'playlist-modify-public',
+  'streaming',
+  'user-read-email',
+  'user-read-private',
 ];
 
-const REDIRECT_URI = 'https://spotifycallback.netlify.app';
+const spotifyAuthUrl = `https://accounts.spotify.com/authorize?client_id=732d056b612e4f82bef5425f2566736a&response_type=code&redirect_uri=${encodeURIComponent('https://spotifycallback.netlify.app')}&scope=${encodeURIComponent(scopes.join(' '))}`;
 
 window.addEventListener('message', async (e) => {
   if (e.data && e.data.type === 'spotify:auth:done' && e.data.code) {
     try {
-      const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
-      sessionStorage.removeItem('pkce_code_verifier');
-
-      const body = new URLSearchParams({
-        grant_type:    'authorization_code',
-        code:          e.data.code,
-        redirect_uri:  REDIRECT_URI,
-        client_id:     CLIENT_ID,
-        code_verifier: codeVerifier,
-      });
-
-      const response = await fetch('https://accounts.spotify.com/api/token', {
+      const response = await fetch('https://spotifycallback.netlify.app/.netlify/functions/api/auth', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString(),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: e.data.code }),
       });
+      const text = await response.text();
+      if (!response.ok) { console.error('Auth error:', text); return; }
+      const { access_token, refresh_token, expires_in } = JSON.parse(text);
+      const expiry_timestamp = Date.now() + expires_in * 1000;
+      localStorage.setItem('spotify_access_token', access_token);
+      localStorage.setItem('spotify_refresh_token', refresh_token);
+      localStorage.setItem('spotify_expiry_timestamp', expiry_timestamp);
 
-      if (!response.ok) {
-        console.error('Token exchange failed:', await response.text());
-        return;
-      }
-
-      const { access_token, refresh_token, expires_in } = await response.json();
-      setSession({
-        access_token,
-        refresh_token,
-        expires_at: Date.now() + expires_in * 1000,
-      });
-
-      const meRes = await fetch('https://api.spotify.com/v1/me', {
-        headers: { Authorization: `Bearer ${access_token}` },
-      });
-      if (meRes.ok) {
-        const me = await meRes.json();
-        setSession({ spotify_id: me.id });
-        // Register/update user in Supabase so friends can find them
-        if (window.supabaseClient) {
-          try { await upsertCurrentUser(me); }
-          catch (err) { console.warn('Supabase upsert skipped:', err); }
+      // Fetch and store spotify_id for ownership checks
+      try {
+        const meRes = await fetch('https://api.spotify.com/v1/me', {
+          headers: { Authorization: `Bearer ${access_token}` }
+        });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          localStorage.setItem('spotify_id', me.id);
+          if (window.supabaseClient) {
+            try { await upsertCurrentUser(me); } catch {}
+          }
         }
-      }
+      } catch {}
 
-      markInternalNavigation();
       window.location.href = 'dashboard.html';
     } catch (err) {
       console.error('Failed to exchange code for tokens:', err);
@@ -65,22 +79,14 @@ window.addEventListener('message', async (e) => {
   }
 });
 
-async function SpotifyLogin() {
-  const verifier = generateCodeVerifier();
-  sessionStorage.setItem('pkce_code_verifier', verifier);
-  const challenge = await generateCodeChallenge(verifier);
-
-  const url = 'https://accounts.spotify.com/authorize?' +
-    `client_id=${CLIENT_ID}` +
-    `&response_type=code` +
-    `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
-    `&scope=${encodeURIComponent(scopes.join(' '))}` +
-    `&code_challenge_method=S256` +
-    `&code_challenge=${encodeURIComponent(challenge)}` +
-    `&show_dialog=true`;
+function SpotifyLogin() {
+  localStorage.removeItem('spotify_access_token');
+  localStorage.removeItem('spotify_refresh_token');
+  localStorage.removeItem('spotify_expiry_timestamp');
+  localStorage.removeItem('spotify_id');
 
   window.open(
-    url,
+    spotifyAuthUrl,
     'Spotify Login',
     'width=500,height=700,top=100,left=100,toolbar=no,scrollbars=yes,resizable=yes'
   );

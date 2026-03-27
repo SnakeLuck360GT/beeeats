@@ -17,60 +17,45 @@ async function getFriendInfo(spotifyId) {
 
 // ── Send request ─────────────────────────────────────────────────────────────
 
-// Resolves a username/display name input to an actual spotify_id.
-// Checks the DB by display_name first, then by spotify_id, then the Spotify API.
-async function resolveSpotifyId(input) {
-  const lower = input.toLowerCase();
-
-  // 1. Check DB by display_name (case-insensitive)
-  const { data: byName } = await window.supabaseClient
-    .from('users')
-    .select('spotify_id')
-    .ilike('display_name', lower)
-    .maybeSingle();
-  if (byName) return byName.spotify_id;
-
-  // 2. Check DB by exact spotify_id
-  const { data: byId } = await window.supabaseClient
-    .from('users')
-    .select('spotify_id')
-    .eq('spotify_id', lower)
-    .maybeSingle();
-  if (byId) return byId.spotify_id;
-
-  // 3. Try the Spotify API — the input might be a valid Spotify user ID
-  const token = localStorage.getItem('spotify_access_token');
-  if (!token) return null;
-
-  try {
-    const res = await fetch(`https://api.spotify.com/v1/users/${encodeURIComponent(input)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) return null;
-    const spotifyUser = await res.json();
-
-    // Create a stub row so future lookups and friend requests work
-    await window.supabaseClient
-      .from('users')
-      .upsert({
-        spotify_id:   spotifyUser.id,
-        display_name: spotifyUser.display_name || spotifyUser.id,
-        avatar_url:   spotifyUser.images?.[0]?.url ?? null,
-        updated_at:   new Date().toISOString(),
-      }, { onConflict: 'spotify_id' });
-
-    return spotifyUser.id;
-  } catch {
-    return null;
-  }
-}
-
-// Tries to send a friend request from myId to the entered username/ID.
+// Tries to send a friend request from myId to targetId.
 // Returns { success: true } or { error: 'not_found' | 'already_friends' | 'already_pending' | 'db_error' }
-async function sendFriendRequest(myId, input) {
-  const targetId = await resolveSpotifyId(input);
-  if (!targetId) return { error: 'not_found' };
-  if (targetId === myId) return { error: 'not_found' };
+async function sendFriendRequest(myId, targetId) {
+  // Check the target user exists in our database
+  const { data: targetUser, error: lookupErr } = await window.supabaseClient
+    .from('users')
+    .select('spotify_id')
+    .eq('spotify_id', targetId)
+    .maybeSingle();
+
+  if (lookupErr) return { error: 'db_error' };
+
+  // If not in database, try to look them up via Spotify and create a stub entry
+  if (!targetUser) {
+    const token = localStorage.getItem('spotify_access_token');
+    if (!token) return { error: 'not_found' };
+
+    try {
+      const res = await fetch(`https://api.spotify.com/v1/users/${encodeURIComponent(targetId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return { error: 'not_found' };
+      const spotifyUser = await res.json();
+
+      // Create a stub row so friend requests and lookups work
+      const { error: stubErr } = await window.supabaseClient
+        .from('users')
+        .upsert({
+          spotify_id:   spotifyUser.id,
+          display_name: spotifyUser.display_name || spotifyUser.id,
+          avatar_url:   spotifyUser.images?.[0]?.url ?? null,
+          updated_at:   new Date().toISOString(),
+        }, { onConflict: 'spotify_id' });
+
+      if (stubErr) return { error: 'db_error' };
+    } catch {
+      return { error: 'not_found' };
+    }
+  }
 
   // Check whether a friendship (in either direction) already exists
   const { data: existing, error: existErr } = await window.supabaseClient

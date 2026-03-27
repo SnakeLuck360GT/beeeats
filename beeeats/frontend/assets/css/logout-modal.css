@@ -1,0 +1,99 @@
+.logout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+html.light-mode .logout-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.logout-overlay.hidden {
+  display: none;
+}
+
+.logout-card {
+  background: #111;
+  border-radius: 16px;
+  padding: 2rem;
+  width: min(320px, 90vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+  transition: background 0.3s ease;
+}
+
+html.light-mode .logout-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.logout-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+html.light-mode .logout-title {
+  color: #111;
+}
+
+.logout-sub {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin: 0 0 0.5rem;
+}
+
+html.light-mode .logout-sub {
+  color: #666;
+}
+
+.logout-confirm-btn {
+  background: #FFD600;
+  color: #111;
+  border: none;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+}
+
+.logout-confirm-btn:hover {
+  background: #ffe033;
+}
+
+.logout-cancel-btn {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+
+html.light-mode .logout-cancel-btn {
+  color: #111;
+  border-color: #ccc;
+}
+
+.logout-cancel-btn:hover {
+  border-color: #888;
+  color: #ddd;
+}
+
+html.light-mode .logout-cancel-btn:hover {
+  border-color: #666;
+  color: #333;
+}

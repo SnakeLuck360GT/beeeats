@@ -1,13 +1,14 @@
 /* ── friends.css — shared styles for friends.html and friend-profile.html ── */
 
 .friends-main {
-  max-width: 900px;
+  max-width: 640px;
   padding: 40px 24px 80px;
+  margin-left: calc(50% - 320px + 148px);
 }
 
-@media (max-width: 639px) {
-  .friends-main { padding: 24px 16px 90px; }
-}
+@media (max-width: 1023px) { .friends-main { margin-left: calc(50% - 320px + 120px); } }
+@media (max-width: 767px)  { .friends-main { margin-left: calc(50% - 320px + 100px); } }
+@media (max-width: 639px)  { .friends-main { margin-left: auto; margin-right: auto; } }
 
 .back-link {
   display: inline-flex;
@@ -122,11 +123,10 @@ html.light-mode .friend-input::placeholder { color: #aaa; }
 /* ── Friend row (used in both friends list and pending requests) ─────────── */
 
 .friend-row {
-  display: grid;
-  grid-template-columns: 44px 1fr auto;
+  display: flex;
   align-items: center;
   gap: 14px;
-  padding: 14px 0;
+  padding: 12px 0;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .friend-row:last-child { border-bottom: none; }
@@ -169,11 +169,11 @@ html.light-mode .friend-avatar-large { background: #eee; }
 
 .user-row { display: flex; align-items: center; gap: 18px; }
 
-.friend-info { min-width: 0; overflow: hidden; }
+.friend-info { flex: 1; min-width: 0; }
 
 .friend-name {
   font-family: 'Sixtyfour', monospace;
-  font-size: 13px;
+  font-size: 12px;
   color: #fff;
   margin: 0 0 4px;
   white-space: nowrap;
@@ -187,9 +187,6 @@ html.light-mode .friend-name { color: #111; }
   font-size: 11px;
   color: #666;
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .view-playlists-btn {
@@ -241,12 +238,12 @@ html.light-mode .decline-btn { background: #eee; color: #666; border-color: rgba
 /* ── Friend playlists grid (friend-profile.html) ────────────────────────── */
 
 .friend-playlists-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 150px));
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
-.friend-playlist-card { width: 100%; max-width: 150px; }
+.friend-playlist-card { width: 150px; }
 
 .friend-playlist-card .cover-single,
 .friend-playlist-card .playlist-placeholder {
@@ -313,19 +310,4 @@ html.light-mode .friend-playlist-card p { color: #555; }
 .open-spotify-link:hover { color: #FFD600; border-color: #FFD600; }
 html.light-mode .open-spotify-link { border-color: rgba(0,0,0,0.1); }
 
-@media (max-width: 480px) {
-  .search-row { flex-direction: column; }
-  .friend-add-btn { width: 100%; }
-
-  .friend-row {
-    grid-template-columns: 44px 1fr;
-    row-gap: 10px;
-  }
-  .friend-row .view-playlists-btn,
-  .friend-row .pending-actions {
-    grid-column: 1 / -1;
-    justify-self: stretch;
-    text-align: center;
-  }
-  .pending-actions { width: 100%; justify-content: center; }
-}
+@media (max-width: 480px) { .friends-main { padding: 24px 16px 80px; } }

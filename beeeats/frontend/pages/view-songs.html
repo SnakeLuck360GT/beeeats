@@ -10,58 +10,6 @@
   <link rel="stylesheet" href="../assets/css/dashboard.css">
   <link rel="stylesheet" href="../assets/css/view-songs.css">
   <title>BEEEATS</title>
-  <style>
-    /* ── Mobile fixes for view-songs ───────────────────────────────────── */
-    @media (max-width: 767px) {
-      .table-header, .track-row {
-        grid-template-columns: 32px 2fr 1fr 50px;
-        gap: 10px;
-        padding: 8px 10px;
-      }
-      .col-date { display: none; }
-      .playlist-cover { width: 140px; height: 140px; }
-      .playlist-details .playlist-title { font-size: 18px; }
-      .playlist-details { min-width: 0; }
-    }
-
-    @media (max-width: 639px) {
-      /* Re-enable hamburger — this page uses sidebar not bottom nav */
-      .menu-toggle { display: flex !important; }
-      body.sidebar-open .sidebar { transform: translateX(0) !important; box-shadow: 4px 0 24px rgba(0,0,0,0.4); }
-      body.sidebar-open .menu-toggle { left: 272px; }
-      .main { padding-bottom: 24px !important; }
-
-      .view-songs-main { padding-top: 64px; }
-
-      .playlist-header-info {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 16px;
-        margin-bottom: 28px;
-      }
-      .playlist-cover { width: 160px; height: 160px; }
-      .playlist-details { align-items: center; width: 100%; min-width: 0; }
-      .playlist-details .playlist-title { font-size: 16px; }
-      .playlist-details .playlist-desc  { font-size: 12px; }
-      .header-actions { justify-content: center; }
-
-      .table-header, .track-row {
-        grid-template-columns: 28px 1fr 48px;
-        gap: 8px;
-        padding: 8px;
-      }
-      .col-album { display: none; }
-      .col-date  { display: none; }
-      .track-thumb, .track-thumb-placeholder { width: 36px; height: 36px; }
-      .track-name   { font-size: 13px; }
-      .track-artist { font-size: 11px; }
-      .col-duration { font-size: 12px; }
-      .col-index    { font-size: 12px; }
-
-      .share-toast { bottom: 32px; }
-    }
-  </style>
 </head>
 <body>
   <button class="menu-toggle" aria-label="Toggle menu" type="button">
@@ -77,7 +25,6 @@
         <a class="nav-item" href="playlist-mixing/select-playlist.html">Playlist Mixing</a>
         <a class="nav-item" href="profile.html">Profile</a>
         <a class="nav-item" href="friends.html">Friends</a>
-        <a class="nav-item" onclick="showLogoutModal()" style="cursor:pointer;">Log Out</a>
       </nav>
     </aside>
 
@@ -132,21 +79,10 @@
 
   <div class="share-toast" id="shareToast">Copied!</div>
 
-  <!-- Logout Modal -->
-  <div id="logoutModal" class="logout-overlay hidden" onclick="hideLogoutModal()">
-    <div class="logout-card" onclick="event.stopPropagation()">
-      <p class="logout-title">Log out?</p>
-      <p class="logout-sub">You'll need to reconnect with Spotify to use BEEEATS</p>
-      <button class="logout-confirm-btn" onclick="confirmLogout()">Log out</button>
-      <button class="logout-cancel-btn" onclick="hideLogoutModal()">Cancel</button>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../../backend/config.js"></script>
   <script src="../../backend/supabase.js"></script>
   <script src="../../backend/auth.js"></script>
-  <script src="../../backend/logout-modal.js"></script>
   <script>
     let spotifyPlaylistUrl  = null;
     let currentPlaylistId   = null;
@@ -227,30 +163,40 @@
           setSaveBtn(false);
           showToast('Removed from library');
           if (window.supabaseClient && currentPlaylistId) {
-            await window.supabaseClient.from('remix_playlists').delete().eq('spotify_playlist_id', currentPlaylistId);
+            await window.supabaseClient
+              .from('remix_playlists')
+              .delete()
+              .eq('spotify_playlist_id', currentPlaylistId);
           }
-        } else showToast('Something went wrong');
+        }
+        else showToast('Something went wrong');
       } else {
         const ok = await followPlaylist(currentPlaylistId, currentToken);
         if (ok) {
           setSaveBtn(true);
           showToast('Saved to library!');
+          // Add remix playlists to database when saved
           if (window.supabaseClient && currentPlaylistId && currentPlaylistData) {
             const pl = currentPlaylistData;
             const MARKER = 'Generated remix playlist';
             if (pl.description && pl.description.includes(MARKER)) {
-              const myId = localStorage.getItem('spotify_id');
               await mirrorPlaylistToSupabase(
-                pl.id, myId, pl.name, pl.description,
-                pl.tracks?.total ?? 0, pl.external_urls?.spotify ?? null
+                pl.id,
+                pl.owner?.id,
+                pl.name,
+                pl.description,
+                pl.tracks?.total ?? 0,
+                pl.external_urls?.spotify ?? null
               ).catch(() => {});
             }
           }
-        } else showToast('Something went wrong');
+        }
+        else showToast('Something went wrong');
       }
       btn.disabled = false;
     });
 
+    // Share dropdown
     document.getElementById('shareBtn').addEventListener('click', (e) => {
       e.stopPropagation();
       document.getElementById('shareDropdown').classList.toggle('open');
@@ -294,7 +240,7 @@
       const res = await fetch(`https://api.spotify.com/v1${path}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error(`Spotify API error ${res.status}`);
+      if (!res.ok) throw new Error(`Spotify API error ${res.status} on ${path}`);
       return res.json();
     }
 
@@ -302,9 +248,10 @@
       requireAuth();
       await refreshTokenIfNeeded();
       const token = getSession().access_token;
+
       currentToken = token;
 
-      const params = new URLSearchParams(window.location.search);
+      const params     = new URLSearchParams(window.location.search);
       const playlistId = params.get('id');
       currentPlaylistId = playlistId;
 
@@ -320,6 +267,7 @@
           checkFollowing(playlistId, token),
         ]);
         currentPlaylistData = playlist;
+
         spotifyPlaylistUrl = playlist.external_urls?.spotify || null;
 
         const cover = playlist.images?.[0]?.url;
@@ -329,15 +277,14 @@
           coverEl.style.display = '';
         }
         document.getElementById('dynamic-title').textContent = playlist.name || 'Untitled';
-        document.getElementById('dynamic-desc').textContent  = playlist.description || 'Generated by BEEEATS';
+        document.getElementById('dynamic-desc').textContent  = playlist.description || 'Generated by BEEEATS Mixer';
         document.getElementById('dynamic-user').textContent  = playlist.owner?.display_name || 'user';
         document.getElementById('dynamic-stats').textContent = `${playlist.tracks?.total ?? 0} songs`;
 
         setSaveBtn(following);
 
-        // Use /items endpoint (Feb 2026 Spotify migration)
         const allItems = [];
-        let url = `https://api.spotify.com/v1/playlists/${playlistId}/items?limit=50`;
+        let url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`;
         while (url) {
           const res  = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
           const data = await res.json();
@@ -355,6 +302,7 @@
         allItems.forEach((item, idx) => {
           const t = item.track;
           if (!t) return;
+
           const albumImg   = t.album?.images?.[2]?.url || t.album?.images?.[0]?.url || '';
           const artists    = (t.artists || []).map(a => escapeHtml(a.name)).join(', ');
           const albumName  = escapeHtml(t.album?.name || '—');
@@ -389,7 +337,6 @@
       }
     }
 
-    // Sidebar toggle
     const toggleSidebar = () => document.body.classList.toggle('sidebar-open');
     document.querySelector('.menu-toggle')?.addEventListener('click', toggleSidebar);
     document.querySelector('.sidebar-overlay')?.addEventListener('click', () => {
@@ -406,6 +353,7 @@
       setupSessionClear();
       startOwnershipCheck();
     }
+
     init();
   </script>
 </body>

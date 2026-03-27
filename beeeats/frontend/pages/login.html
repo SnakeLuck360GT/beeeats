@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>(function(){var t=localStorage.getItem("beeeats_theme");if(t==="light")document.documentElement.classList.add("light-mode");})()</script>
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEEEATS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/login.css">
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="../../backend/config.js"></script>
+    <script src="../../backend/supabase.js"></script>
+    <script src="../../backend/auth.js"></script>
+    <script src="../../backend/script.js"></script>
+    <script>
+      // If already logged in, skip straight to dashboard
+      if (getSession().access_token) {
+        window.location.href = 'dashboard.html';
+      }
+    </script>
+    <div class="container">
+        <h1 class="logo">BEEEATS</h1>
+        <p class="tagline">one party, one playlist, everyone's vibe</p>
+
+        <div class="connect-section">
+            <div class="connect-header">
+                <div class="connect-line"></div>
+                <span class="connect-text">CONNECT WITH</span>
+                <div class="connect-line"></div>
+            </div>
+
+            <button class="spotify-button" onclick="SpotifyLogin()">
+                <img class="spotify-icon" src="../assets/images/spotify_black_logo.png" alt="Spotify logo"/>
+                Spotify
+            </button>
+
+            <p class="terms">
+                By clicking continue, you agree to our <a href="https://www.spotify.com/uk/legal/end-user-agreement/", target="_blank">Terms of Service</a> and <a href="https://www.spotify.com/uk/legal/privacy-policy/", target="_blank">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
